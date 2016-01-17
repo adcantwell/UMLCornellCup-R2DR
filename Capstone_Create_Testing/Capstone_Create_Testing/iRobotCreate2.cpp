@@ -76,7 +76,7 @@ void iRobotCreate2::SendRadialDriveCommand(DriveDirection Direction, __int16 Dis
 	DataBits[2] = arrRadius[0];
 	DataBits[3] = arrRadius[1];
 
-	SendCommand(CreatePort, OPCODE_DRIVE, DataBits, static_cast<__int8>(sizeof(DataBits)));
+	SendCommand(CreatePort, OPCODE_DRIVE, DataBits, 4);
 }
 
 array<Byte>^ iRobotCreate2::Int16ToTwosComplementByteArray(__int16 Velocity)
