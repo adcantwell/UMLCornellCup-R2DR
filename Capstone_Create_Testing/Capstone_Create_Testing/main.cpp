@@ -39,9 +39,6 @@ int main()
 
 	if (NUC.Init())
 	{
-		NUC.Create2.SendStartCommand();
-		NUC.Create2.EnterSafeMode();
-
 		while (Continue)
 		{
 			strCommand = Console::ReadLine();
@@ -76,6 +73,10 @@ int main()
 			if (strcmp->Equals("reset", strCommand))
 			{
 				NUC.Create2.SendResetCommand();
+			}
+			if (strcmp->Equals("start", strCommand))
+			{
+				NUC.Create2.SendStartCommand();
 			}
 		}
 

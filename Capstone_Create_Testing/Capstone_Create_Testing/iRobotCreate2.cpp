@@ -20,7 +20,7 @@ void iRobotCreate2::SendCommand(SerialPort^ Port, Opcode Cmd, __int16 DataBits[]
 		FullCommmand[i] = uchar_buffer;
 	}
 
-	Port->Write(FullCommmand, 0, NumDataBits);
+	Port->Write(FullCommmand, 0, NumDataBits+1);
 }
 
 void iRobotCreate2::SendStartCommand()
