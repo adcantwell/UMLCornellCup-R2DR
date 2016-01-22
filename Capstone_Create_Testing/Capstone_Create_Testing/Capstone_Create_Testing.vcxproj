@@ -15,11 +15,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SerialPortWrapper.cpp" />
     <ClCompile Include="Server.cpp" />
+    <ClCompile Include="ThreadWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="iRobotCreate2.h" />
     <ClInclude Include="SerialPortWrapper.h" />
     <ClInclude Include="Server.h" />
+    <ClInclude Include="ThreadWrapper.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CB9A5F48-D5E9-4F13-AE9E-38B9868E76AC}</ProjectGuid>

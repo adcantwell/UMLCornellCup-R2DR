@@ -39,7 +39,10 @@ bool SerialPortWrapper::Open(SerialPort^ Port, unsigned __int16 PortNumber, unsi
 
 void SerialPortWrapper::Close(SerialPort^ Port)
 {
-	Port->Close();
+	if (Port != nullptr)
+	{
+		Port->Close();
+	}
 }
 
 void SerialPortWrapper::SetPortName(SerialPort^ Port, String^ PortName)

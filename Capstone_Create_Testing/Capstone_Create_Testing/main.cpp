@@ -4,6 +4,57 @@
 
 int main()
 {
+	Server NUC;
+	StringComparer^ strcmp = StringComparer::OrdinalIgnoreCase;
+	String^ strCommand;
+	bool Continue = true;
+
+	if (NUC.Init())
+	{
+		NUC.StartCreateWriteThread();
+		NUC.AddCreateCommandToQueue(NUC.Create2.ProcessCommand(OPCODE_START));
+		NUC.AddCreateCommandToQueue(NUC.Create2.ProcessCommand(OPCODE_SAFE_MODE));
+		while (Continue)
+		{
+			strCommand = Console::ReadLine();
+
+			if (strcmp->Equals("quit", strCommand))
+			{
+				Continue = false;
+			}
+			if (strcmp->Equals("forward", strCommand))
+			{
+				NUC.AddCreateCommandToQueue(NUC.Create2.ProcessRadialDriveCommand(FORWARD, 0, 100, 100));
+			}
+			if (strcmp->Equals("back", strCommand))
+			{
+				NUC.AddCreateCommandToQueue(NUC.Create2.ProcessRadialDriveCommand(BACKWARD, 0, 100, 100));
+			}
+			if (strcmp->Equals("stop", strCommand))
+			{
+				NUC.AddCreateCommandToQueue(NUC.Create2.ProcessRadialDriveCommand(STOP, 0, 100, 100));
+			}
+			if (strcmp->Equals("forward_r", strCommand))
+			{
+				NUC.AddCreateCommandToQueue(NUC.Create2.ProcessRadialDriveCommand(FORWARD_RIGHT, 0, 100, 100));
+			}
+			if (strcmp->Equals("safe", strCommand))
+			{
+				NUC.AddCreateCommandToQueue(NUC.Create2.ProcessCommand(OPCODE_SAFE_MODE));
+			}
+		}
+
+		NUC.Cleanup();
+	}
+	else
+	{
+		Console::WriteLine("Server failed to initialize");
+		NUC.Cleanup();
+		
+	}
+
+
+
 	//FOR TESTING//
 	/*
 	StringComparer^ strcmp = StringComparer::OrdinalIgnoreCase;
@@ -30,7 +81,7 @@ int main()
 	*/
 
 	//IN PROGRESS//
-	
+	/*
 	Server NUC;
 
 	String^ strCommand;
@@ -64,7 +115,7 @@ int main()
 			}
 			if (strcmp->Equals("safe", strCommand))
 			{
-				NUC.Create2.EnterSafeMode();
+				NUC.Create2.SendSafeMode();
 			}
 			if (strcmp->Equals("stop", strCommand))
 			{
@@ -80,8 +131,6 @@ int main()
 			}
 		}
 
-
-
 		NUC.Cleanup();
 	}
 	else
@@ -89,8 +138,7 @@ int main()
 		NUC.Cleanup();
 		Console::WriteLine("Server initialization failed.");
 	}
-	
-	
+	*/
 
 	//DEPRECATED//
 	/*
