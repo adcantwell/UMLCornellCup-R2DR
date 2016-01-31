@@ -42,6 +42,10 @@ int main()
 			{
 				NUC.AddCreateCommandToQueue(NUC.Create2.ProcessCommand(OPCODE_SAFE_MODE));
 			}
+			if (strcmp->Equals("battery", strCommand))
+			{
+				NUC.AddCreateCommandToQueue(NUC.Create2.ProcessCommand(OPCODE_QUERY, PACKET_BATTERY_CHARGE));
+			}
 		}
 
 		NUC.Cleanup();

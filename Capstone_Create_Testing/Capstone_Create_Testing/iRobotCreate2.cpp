@@ -30,7 +30,6 @@ iRobotCreate2::CreateCommand^ iRobotCreate2::ProcessCommand(Opcode Cmd, __int16 
 
 	CreateCommand^ ccmd = gcnew CreateCommand();
 	ccmd->SetCommand(FullCommmand, NumDataBits + 1);
-	//ccmd->SetCommandLength(NumDataBits + 1);
 	return ccmd;
 }
 
@@ -39,7 +38,14 @@ iRobotCreate2::CreateCommand^ iRobotCreate2::ProcessCommand(Opcode Cmd)
 	array<Byte>^ FullCommmand = { Cmd };
 	CreateCommand^ ccmd = gcnew CreateCommand();
 	ccmd->SetCommand(FullCommmand, 1);
-	//ccmd->SetCommandLength(1);
+	return ccmd;
+}
+
+iRobotCreate2::CreateCommand^ iRobotCreate2::ProcessCommand(Opcode Cmd, PacketID ID)
+{
+	array<Byte>^ FullCommmand = { Cmd, ID };
+	CreateCommand^ ccmd = gcnew CreateCommand();
+	ccmd->SetCommand(FullCommmand, 2);
 	return ccmd;
 }
 
@@ -70,6 +76,7 @@ iRobotCreate2::CreateCommand^ iRobotCreate2::ProcessRadialDriveCommand(DriveDire
 		break;
 	case STOP:
 		Velocity = 0;
+		break;
 	}
 
 	arrVelocity = iRobotCreate2::Int16ToTwosComplementByteArray(Velocity);
@@ -110,6 +117,14 @@ void iRobotCreate2::SendCommand_Direct(SerialPort^ Port, Opcode Cmd, __int16 Dat
 void iRobotCreate2::SendStopCommand_Direct()
 {
 	SendCommand_Direct(CreatePort, OPCODE_STOP);
+}
+
+void iRobotCreate2::CreateDataReceivedHandler(Object^ sender, SerialDataReceivedEventArgs^ e)
+{
+	String^ indata = CreatePort->ReadExisting();
+	Console::WriteLine("Data Received:");
+	Console::Write(indata);
+	Console::WriteLine("\n");
 }
 
 //DEPRECATED//

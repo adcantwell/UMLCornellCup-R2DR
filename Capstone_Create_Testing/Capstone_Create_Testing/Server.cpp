@@ -9,9 +9,11 @@ bool Server::Init()
 {
 	Create2.CreatePort = gcnew SerialPort();
 	CreateWriteThread = gcnew ThreadWrapper();
-
+	//this should be placed in serialportwrapper::open
+	Create2.CreatePort->DataReceived += gcnew SerialDataReceivedEventHandler(Create2.CreateDataReceivedHandler);
 	if (SerialPortWrapper::Open(Create2.CreatePort, CREATE2_PORT_NUMBER, CREATE2_BAUD, CREATE2_PARITY, CREATE2_DATABITS, CREATE2_STOPBITS, CREATE2_FLOWCONTROL))
 		bInit = true;
+	
 
 	return bInit;
 }
