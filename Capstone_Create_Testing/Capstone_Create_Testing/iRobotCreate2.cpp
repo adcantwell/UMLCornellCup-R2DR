@@ -1,12 +1,20 @@
 #include "iRobotCreate2.h"
 
-void iRobotCreate2::SendCommand(SerialPort^ Port, Opcode Cmd)
+array<Byte>^ iRobotCreate2::Int16ToTwosComplementByteArray(__int16 Int16)
 {
-	array<Byte>^ FullCommmand = { Cmd };
-	Port->Write(FullCommmand, 0, 1);
+	unsigned char high;
+	unsigned char low;
+	__int16 Int16_2sC = Int16 ^ 0xFFFF + 1;
+	
+	high = (Int16_2sC & 0xFF00) >> 8;
+	low = Int16_2sC & 0x00FF;
+
+	array<Byte>^ result = { high, low };
+	return result;
 }
 
-void iRobotCreate2::SendCommand(SerialPort^ Port, Opcode Cmd, __int16 DataBits[], __int8 NumDataBits)
+
+iRobotCreate2::CreateCommand^ iRobotCreate2::ProcessCommand(Opcode Cmd, __int16 DataBits[], __int8 NumDataBits)
 {
 	array<Byte>^ FullCommmand = gcnew array<Byte>(NumDataBits + 1);
 	unsigned char uchar_buffer;
@@ -16,39 +24,32 @@ void iRobotCreate2::SendCommand(SerialPort^ Port, Opcode Cmd, __int16 DataBits[]
 
 	for (int i = 1; i <= NumDataBits; i++)
 	{
-		uchar_buffer = static_cast<unsigned char>(DataBits[i-1]);
+		uchar_buffer = static_cast<unsigned char>(DataBits[i - 1]);
 		FullCommmand[i] = uchar_buffer;
 	}
 
-	Port->Write(FullCommmand, 0, NumDataBits+1);
+	CreateCommand^ ccmd = gcnew CreateCommand();
+	ccmd->SetCommand(FullCommmand, NumDataBits + 1);
+	return ccmd;
 }
 
-void iRobotCreate2::SendStartCommand()
+iRobotCreate2::CreateCommand^ iRobotCreate2::ProcessCommand(Opcode Cmd)
 {
-	SendCommand(CreatePort, OPCODE_START);
+	array<Byte>^ FullCommmand = { Cmd };
+	CreateCommand^ ccmd = gcnew CreateCommand();
+	ccmd->SetCommand(FullCommmand, 1);
+	return ccmd;
 }
 
-void iRobotCreate2::SendResetCommand()
+iRobotCreate2::CreateCommand^ iRobotCreate2::ProcessCommand(Opcode Cmd, PacketID ID)
 {
-	SendCommand(CreatePort, OPCODE_RESET);
+	array<Byte>^ FullCommmand = { Cmd, ID };
+	CreateCommand^ ccmd = gcnew CreateCommand();
+	ccmd->SetCommand(FullCommmand, 2);
+	return ccmd;
 }
 
-void iRobotCreate2::SendStopCommand()
-{
-	SendCommand(CreatePort, OPCODE_STOP);
-}
-
-void iRobotCreate2::EnterSafeMode()
-{
-	SendCommand(CreatePort, OPCODE_SAFE_MODE);
-}
-
-void iRobotCreate2::EnterFullMode()
-{
-	SendCommand(CreatePort, OPCODE_FULL_MODE);
-}
-
-void iRobotCreate2::SendRadialDriveCommand(DriveDirection Direction, __int16 Distance, __int16 Velocity, __int16 Radius)
+iRobotCreate2::CreateCommand^ iRobotCreate2::ProcessRadialDriveCommand(DriveDirection Direction, __int16 Distance, __int16 Velocity, __int16 Radius)
 {
 	array<Byte>^ arrVelocity = gcnew array<Byte>(2);
 	array<Byte>^ arrRadius = gcnew array<Byte>(2);
@@ -66,6 +67,22 @@ void iRobotCreate2::SendRadialDriveCommand(DriveDirection Direction, __int16 Dis
 		Radius = -Radius;
 		Velocity = -Velocity;
 		break;
+	case FORWARD:
+		Radius = 32768;
+		break;
+	case BACKWARD:
+		Radius = 32768;
+		Velocity = -Velocity;
+		break;
+	case TURN_IN_PLACE_CW:
+		Radius = -1;
+		break;
+	case TURN_IN_PLACE_CCW:
+		Radius = 1;
+		break;
+	case STOP:
+		Velocity = 0;
+		break;
 	}
 
 	arrVelocity = iRobotCreate2::Int16ToTwosComplementByteArray(Velocity);
@@ -76,23 +93,128 @@ void iRobotCreate2::SendRadialDriveCommand(DriveDirection Direction, __int16 Dis
 	DataBits[2] = arrRadius[0];
 	DataBits[3] = arrRadius[1];
 
-	SendCommand(CreatePort, OPCODE_DRIVE, DataBits, 4);
+	return ProcessCommand(OPCODE_DRIVE, DataBits, 4);
 }
 
-array<Byte>^ iRobotCreate2::Int16ToTwosComplementByteArray(__int16 Velocity)
+void iRobotCreate2::SendCommand_Direct(SerialPort^ Port, Opcode Cmd)
 {
-	unsigned char high;
-	unsigned char low;
-	__int16 Vel2sC = Velocity ^ 0xFFFF + 1;
-	
-	high = (Vel2sC & 0xFF00) >> 8;
-	low = Vel2sC & 0x00FF;
+	array<Byte>^ FullCommmand = { Cmd };
+	Port->Write(FullCommmand, 0, 1);
+}
 
-	array<Byte>^ result = { high, low };
-	return result;
+void iRobotCreate2::SendCommand_Direct(SerialPort^ Port, Opcode Cmd, __int16 DataBits[], __int8 NumDataBits)
+{
+	array<Byte>^ FullCommmand = gcnew array<Byte>(NumDataBits + 1);
+	unsigned char uchar_buffer;
+
+	uchar_buffer = static_cast<unsigned char>(Cmd);
+	FullCommmand[0] = uchar_buffer;
+
+	for (int i = 1; i <= NumDataBits; i++)
+	{
+		uchar_buffer = static_cast<unsigned char>(DataBits[i - 1]);
+		FullCommmand[i] = uchar_buffer;
+	}
+
+	Port->Write(FullCommmand, 0, NumDataBits + 1);
+}
+
+void iRobotCreate2::SendStopCommand_Direct()
+{
+	SendCommand_Direct(CreatePort, OPCODE_STOP);
+}
+
+void iRobotCreate2::CreateDataReceivedHandler(Object^ sender, SerialDataReceivedEventArgs^ e)
+{
+	/*
+	String^ indata = CreatePort->ReadExisting();
+	Console::WriteLine("Data Received:");
+	Console::Write(indata);
+	Console::WriteLine("\n");
+	*/
 }
 
 //DEPRECATED//
+/*
+void iRobotCreate2::SendCommand(SerialPort^ Port, Opcode Cmd)
+{
+array<Byte>^ FullCommmand = { Cmd };
+Port->Write(FullCommmand, 0, 1);
+}
+
+void iRobotCreate2::SendCommand(SerialPort^ Port, Opcode Cmd, __int16 DataBits[], __int8 NumDataBits)
+{
+array<Byte>^ FullCommmand = gcnew array<Byte>(NumDataBits + 1);
+unsigned char uchar_buffer;
+
+uchar_buffer = static_cast<unsigned char>(Cmd);
+FullCommmand[0] = uchar_buffer;
+
+for (int i = 1; i <= NumDataBits; i++)
+{
+uchar_buffer = static_cast<unsigned char>(DataBits[i-1]);
+FullCommmand[i] = uchar_buffer;
+}
+
+Port->Write(FullCommmand, 0, NumDataBits+1);
+}
+
+void iRobotCreate2::SendStartCommand()
+{
+SendCommand(CreatePort, OPCODE_START);
+}
+
+void iRobotCreate2::SendResetCommand()
+{
+SendCommand(CreatePort, OPCODE_RESET);
+}
+
+void iRobotCreate2::SendStopCommand()
+{
+SendCommand(CreatePort, OPCODE_STOP);
+}
+
+void iRobotCreate2::SendSafeMode()
+{
+SendCommand(CreatePort, OPCODE_SAFE_MODE);
+}
+
+void iRobotCreate2::SendFullMode()
+{
+SendCommand(CreatePort, OPCODE_FULL_MODE);
+}
+
+void iRobotCreate2::SendRadialDriveCommand(DriveDirection Direction, __int16 Distance, __int16 Velocity, __int16 Radius)
+{
+array<Byte>^ arrVelocity = gcnew array<Byte>(2);
+array<Byte>^ arrRadius = gcnew array<Byte>(2);
+__int16 DataBits[4];
+
+switch (Direction)
+{
+case FORWARD_RIGHT:
+Radius = -Radius;
+break;
+case BACKWARD_LEFT:
+Velocity = -Velocity;
+break;
+case BACKWARD_RIGHT:
+Radius = -Radius;
+Velocity = -Velocity;
+break;
+}
+
+arrVelocity = iRobotCreate2::Int16ToTwosComplementByteArray(Velocity);
+arrRadius = iRobotCreate2::Int16ToTwosComplementByteArray(Radius);
+
+DataBits[0] = arrVelocity[0];
+DataBits[1] = arrVelocity[1];
+DataBits[2] = arrRadius[0];
+DataBits[3] = arrRadius[1];
+
+SendCommand(CreatePort, OPCODE_DRIVE, DataBits, 4);
+}
+*/
 /*
 void Create2::Start()
 {
