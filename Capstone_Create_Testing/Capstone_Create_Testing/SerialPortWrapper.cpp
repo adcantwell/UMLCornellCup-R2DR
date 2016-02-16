@@ -1,4 +1,5 @@
 #include "SerialPortWrapper.h"
+#include "iRobotCreate2.h"
 using namespace std;
 
 bool SerialPortWrapper::Open(SerialPort^ Port, unsigned __int16 PortNumber, unsigned __int32 BaudRate, Parity Parity, unsigned __int16 DataBits, StopBits StopBits, Handshake FlowControl)
@@ -20,6 +21,7 @@ bool SerialPortWrapper::Open(SerialPort^ Port, unsigned __int16 PortNumber, unsi
 	
 	if (PortExists)
 	{
+		Port->DataReceived += gcnew SerialDataReceivedEventHandler(iRobotCreate2::CreateDataReceivedHandler);
 		SetPortName(Port, strPort);
 		SetPortBaudRate(Port, BaudRate);
 		SetPortParity(Port, Parity);

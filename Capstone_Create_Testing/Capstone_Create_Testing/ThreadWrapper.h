@@ -10,7 +10,7 @@ using namespace System::Collections::Concurrent;
 
 public ref class ThreadWrapper
 {
-private:
+protected:
 	Thread^ thread;
 
 	unsigned __int32 iSleepMS;
@@ -19,11 +19,9 @@ public:
 	// constructor
 	ThreadWrapper();
 	// call this function to start thread
-	void Start();
+	virtual void Start();
 	// call this function to stop thread
-	bool Stop();
+	virtual bool Stop();
 	// thread entry point
-	void Entry();
-	// queue for sending commands to the create
-	ConcurrentQueue<iRobotCreate2::CreateCommand^>^ CommandQueue;
+	virtual void Entry();
 };

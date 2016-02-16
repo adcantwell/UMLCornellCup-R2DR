@@ -1,5 +1,5 @@
 #pragma once
-#define CREATE2_PORT_NUMBER 4
+#define CREATE2_PORT_NUMBER 3
 #define CREATE2_BAUD 115200
 #define CREATE2_DATABITS 8
 #define CREATE2_PARITY Parity::None
@@ -18,6 +18,8 @@ enum DriveDirection
 	BACKWARD_RIGHT,
 	FORWARD,
 	BACKWARD,
+	TURN_IN_PLACE_CW,
+	TURN_IN_PLACE_CCW,
 	STOP
 };
 
@@ -124,7 +126,7 @@ public:
 			CreatePort->Write(Command, 0, CommandLength);
 		}
 	
-		void SetCommand(array<Byte>^ arr, int len){
+		void SetCommand(array<Byte>^ arr, int len) {
 			Command = arr;
 			CommandLength = len;
 		}

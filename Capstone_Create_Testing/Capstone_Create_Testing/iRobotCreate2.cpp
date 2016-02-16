@@ -74,6 +74,12 @@ iRobotCreate2::CreateCommand^ iRobotCreate2::ProcessRadialDriveCommand(DriveDire
 		Radius = 32768;
 		Velocity = -Velocity;
 		break;
+	case TURN_IN_PLACE_CW:
+		Radius = -1;
+		break;
+	case TURN_IN_PLACE_CCW:
+		Radius = 1;
+		break;
 	case STOP:
 		Velocity = 0;
 		break;
@@ -89,7 +95,6 @@ iRobotCreate2::CreateCommand^ iRobotCreate2::ProcessRadialDriveCommand(DriveDire
 
 	return ProcessCommand(OPCODE_DRIVE, DataBits, 4);
 }
-
 
 void iRobotCreate2::SendCommand_Direct(SerialPort^ Port, Opcode Cmd)
 {
@@ -121,10 +126,12 @@ void iRobotCreate2::SendStopCommand_Direct()
 
 void iRobotCreate2::CreateDataReceivedHandler(Object^ sender, SerialDataReceivedEventArgs^ e)
 {
+	/*
 	String^ indata = CreatePort->ReadExisting();
 	Console::WriteLine("Data Received:");
 	Console::Write(indata);
 	Console::WriteLine("\n");
+	*/
 }
 
 //DEPRECATED//

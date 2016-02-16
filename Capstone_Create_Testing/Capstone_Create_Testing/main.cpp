@@ -1,4 +1,4 @@
-#include "SerialPortWrapper.h"
+#include "Server.h"										ialPortWrapper.h"
 #include "Server.h"
 #include "iRobotCreate2.h"
 
@@ -12,6 +12,7 @@ int main()
 	if (NUC.Init())
 	{
 		NUC.StartCreateWriteThread();
+		NUC.StartRSDataThread();
 		NUC.AddCreateCommandToQueue(NUC.Create2.ProcessCommand(OPCODE_START));
 		NUC.AddCreateCommandToQueue(NUC.Create2.ProcessCommand(OPCODE_SAFE_MODE));
 		while (Continue)
